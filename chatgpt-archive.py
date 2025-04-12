@@ -1,9 +1,11 @@
 import asyncio
 import re
 import sys
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
+import requests
 
 
 async def save_chatgpt_cleaned_html(url: str, output_file: str):
@@ -35,6 +37,17 @@ async def save_chatgpt_cleaned_html(url: str, output_file: str):
         # Get page HTML
         html = await page.content()
         soup = BeautifulSoup(html, 'html.parser')
+
+        for link_tag in soup.find_all("link", rel="stylesheet"):
+            href = link_tag.get("href")
+            if not href:
+                continue
+            css_url = urljoin(url, href)
+            print(f"Inlining CSS from: {css_url}")
+            css_content = requests.get(css_url, timeout=10).text
+            style_tag = soup.new_tag("style")
+            style_tag.string = css_content
+            link_tag.replace_with(style_tag)
 
         # Remove all <script> tags
         for script in soup.find_all('script'):

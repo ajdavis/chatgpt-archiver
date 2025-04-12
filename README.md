@@ -1,0 +1,1 @@
+ChatGPT makes it hard to save conversations with links to sources. This script saves a conversation as HTML with links. First, in our ChatGPT conversation, click "share", copy the resulting shareable URL, then run this script with that URL as the first commandline argument.
